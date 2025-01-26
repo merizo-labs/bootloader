@@ -4,5 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+lazy_static = { version = "1.5.0", features = ["spin_no_std"] }
 log = "0.4.25"
-uefi = { version = "0.33.0", features = ["panic_handler", "logger", "qemu", "alloc"] }
+uefi = { version = "0.33.0", features = [
+    "panic_handler",
+    "logger",
+    "qemu",
+    "global_allocator",
+    "alloc",
+] }
+xmas-elf = "0.9.1"
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+panic = "abort"
