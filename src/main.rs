@@ -4,21 +4,38 @@
 //TODO: Add error handling.
 extern crate alloc;
 use alloc::{boxed::Box, vec::Vec};
+use log::info;
 use uefi::{fs::FileSystem, prelude::*, CStr16, Result};
 use xmas_elf::ElfFile;
 const KERNEL_PATH: &str = concat!("mkernel-", env!("CARGO_PKG_VERSION"), ".elf");
-
 #[entry]
 fn boot_entry() -> Status {
-    uefi::helpers::init().unwrap();
-    let img = boot::image_handle();
-    uefi::helpers::init().unwrap();
-    let sfs = boot::get_image_file_system(img).unwrap();
+    if let Err(e) = uefi::helpers::init() {
+        return e.status();
+    }
+    info!("Booting kernel...");
+    boot::stall(10_000_000);
+
+    let sfs = match boot::get_image_file_system(internal_image_handle) {
+        Ok(sfs) => sfs,
+        Err(e) => return e.status(),
+    };
+    info!("Received image file system. Locating kernel...");
+    boot::stall(10_000_000);
     let mut fs = FileSystem::new(sfs);
-    let kernel_file = locate_kernel(&mut fs).unwrap();
-    let entry = load_kernel(kernel_file).unwrap();
+    let kernel_file = match locate_kernel(&mut fs) {
+        Ok(kernel_file) => kernel_file,
+        Err(e) => return e.status(),
+    };
+    info!("Kernel located. Loading kernel...");
+    boot::stall(10_000_000);
+    let entry = match load_kernel(kernel_file) {
+        Ok(entry) => entry,
+        Err(e) => return e.status(),
+    };
+    info!("Kernel loaded. Jumping to kernel entry point...");
+    boot::stall(10_000_000);
     entry();
-    Status::SUCCESS
 }
 
 fn load_kernel(elf: ElfFile<'static>) -> Result<extern "C" fn() -> !, &'static str> {
