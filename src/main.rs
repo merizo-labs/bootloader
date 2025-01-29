@@ -14,27 +14,22 @@ fn boot_entry() -> Status {
         return e.status();
     }
     info!("Booting kernel...");
-    boot::stall(10_000_000);
-
     let sfs = match boot::get_image_file_system(internal_image_handle) {
         Ok(sfs) => sfs,
         Err(e) => return e.status(),
     };
     info!("Received image file system. Locating kernel...");
-    boot::stall(10_000_000);
     let mut fs = FileSystem::new(sfs);
     let kernel_file = match locate_kernel(&mut fs) {
         Ok(kernel_file) => kernel_file,
         Err(e) => return e.status(),
     };
     info!("Kernel located. Loading kernel...");
-    boot::stall(10_000_000);
     let entry = match load_kernel(kernel_file) {
         Ok(entry) => entry,
         Err(e) => return e.status(),
     };
     info!("Kernel loaded. Jumping to kernel entry point...");
-    boot::stall(10_000_000);
     entry();
 }
 
