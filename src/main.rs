@@ -13,17 +13,20 @@ fn boot_entry() -> Status {
     if let Err(e) = uefi::helpers::init() {
         return e.status();
     }
+    boot::stall(10_000_000);
     info!("Booting kernel...");
     let sfs = match boot::get_image_file_system(internal_image_handle) {
         Ok(sfs) => sfs,
         Err(e) => return e.status(),
     };
+    boot::stall(10_000_000);
     info!("Received image file system. Locating kernel...");
     let mut fs = FileSystem::new(sfs);
     let kernel_file = match locate_kernel(&mut fs) {
         Ok(kernel_file) => kernel_file,
         Err(e) => return e.status(),
     };
+    boot::stall(10_000_000);
     info!("Kernel located. Loading kernel...");
     let entry = match load_kernel(kernel_file) {
         Ok(entry) => entry,
