@@ -15,9 +15,3 @@ uefi = { version = "0.33.0", features = [
     "alloc",
 ] }
 xmas-elf = "0.9.1"
-
-[profile.dev]
-panic = "abort"
-
-[profile.release]
-panic = "abort"

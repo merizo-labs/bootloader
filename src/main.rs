@@ -1,12 +1,15 @@
 #![no_std]
 #![no_main]
-
+mod memory_map;
 //TODO: Add error handling.
 extern crate alloc;
 use alloc::{boxed::Box, vec::Vec};
 use log::info;
-use uefi::{fs::FileSystem, prelude::*, CStr16, Result};
+use uefi::{
+    boot::memory_map, fs::FileSystem, mem::memory_map::MemoryType, prelude::*, CStr16, Result,
+};
 use xmas_elf::ElfFile;
+
 const KERNEL_PATH: &str = concat!("mkernel-", env!("CARGO_PKG_VERSION"), ".elf");
 #[entry]
 fn boot_entry() -> Status {
